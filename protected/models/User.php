@@ -17,7 +17,7 @@ use Yii;
  * @property int $created_at
  * @property int $updated_at
  */
-class User extends \yii\db\ActiveRecord
+class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
     /**
      * {@inheritdoc}
@@ -56,5 +56,57 @@ class User extends \yii\db\ActiveRecord
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
         ];
+    }
+
+    public static function findIdentity($id)
+    {
+        return static::findOne($id);
+    }
+
+    public static function primaryKey()
+    {
+        return ['id'];
+    }
+
+
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        return static::findOne(['access_token' => $token]);
+    }
+
+
+    public static function findByUsername($username)
+    {
+        return static::findOne(['username' => $username]);
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getAuthKey()
+    {
+        return $this->auth_key;
+    }
+
+    public function validateAuthKey($authKey)
+    {
+        return $this->auth_key === $authKey;
+    }
+
+    public function validatePassword($password)
+    {
+        return $this->password === $password;
+    }
+
+    public function setPassword($password)
+    {
+        return $this->password_hash = sha1($password);
+    }
+
+    public function generateAuthKey()
+    {
+        return $this->auth_key;
     }
 }
